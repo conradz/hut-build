@@ -1,5 +1,8 @@
 # hut-build
 
+[![Build Status](https://travis-ci.org/conradz/hut-build.png?branch=master)](https://travis-ci.org/conradz/hut-build)
+[![Dependency Status](https://gemnasium.com/conradz/hut-build.png)](https://gemnasium.com/conradz/hut-build)
+
 HTML UI Toolkit build tool.
 
 This tool is custom-made for the HTML UI Toolkit (`hut`) packages. It is not
