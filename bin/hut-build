@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+var opts = require('nomnom'),
+    build = require('../'),
+    chi = require('chi-build');
+
+opts.command('test')
+    .callback(chi.test)
+    .help('Run the test script in Sauce Labs');
+
+opts.command('serve-test')
+    .callback(chi.serve)
+    .help('Serve the JS tests locally')
+    .option('port', {
+        abbr: 'p',
+        default: 8000,
+        help: 'The port for the HTTP server'
+    });
+
+opts.command('serve')
+    .callback(build.serve)
+    .help('Serve the example')
+    .option('port', {
+        abbr: 'p',
+        default: 8000,
+        help: 'The port for the HTTP server'
+    });
+
+opts.command('build')
+    .callback(build.build)
+    .help('Build dist files from example');
+
+opts.parse();
