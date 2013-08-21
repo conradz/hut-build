@@ -45,14 +45,29 @@ test('build dist files', function(t) {
 });
 
 test('serve files', function(t) {
-    var proc = run('serve');
+    var proc = run('serve'),
+        tryCount = 0;
+
+    start();
 
     // Wait for the server to start
-    setTimeout(function() {
+    function start() {
         request('http://localhost:8000/', requestedIndex);
-    }, 1000);
+    }
 
     function requestedIndex(err, resp, body) {
+        if (err) {
+            // Try for a max of 4 seconds
+            if (tryCount++ > 20) {
+                t.ok(false, 'Could not connect to server');
+                return t.end();
+            }
+
+            // Retry until the server is started
+            setTimeout(start, 200);
+            return;
+        }
+
         t.notOk(err);
         t.equal(resp.statusCode, 200);
         t.ok(/^<!DOCTYPE html>/.test(body));
