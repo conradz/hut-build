@@ -1,5 +1,7 @@
 # hut-build
 
+[![NPM](https://nodei.co/npm/hut-build.png?compact=true)](https://nodei.co/npm/hut-build/)
+
 [![Build Status](https://drone.io/github.com/conradz/hut-build/status.png)](https://drone.io/github.com/conradz/hut-build/latest)
 [![Dependency Status](https://gemnasium.com/conradz/hut-build.png)](https://gemnasium.com/conradz/hut-build)
 
