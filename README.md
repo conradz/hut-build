@@ -1,6 +1,6 @@
 # hut-build
 
-[![Build Status](https://travis-ci.org/conradz/hut-build.png?branch=master)](https://travis-ci.org/conradz/hut-build)
+[![Build Status](https://drone.io/github.com/conradz/hut-build/status.png)](https://drone.io/github.com/conradz/hut-build/latest)
 [![Dependency Status](https://gemnasium.com/conradz/hut-build.png)](https://gemnasium.com/conradz/hut-build)
 
 HTML UI Toolkit build tool.
