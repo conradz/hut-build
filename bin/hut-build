@@ -1,15 +1,20 @@
 #!/usr/bin/env node
+/*jshint node: true */
 
 var opts = require('nomnom'),
     build = require('../'),
     chi = require('chi-build');
 
+opts.command('lint')
+    .callback(lint)
+    .help('Run JSHint');
+
 opts.command('test')
-    .callback(chi.test)
-    .help('Run the test script in Sauce Labs');
+    .callback(test)
+    .help('Lint and run the test script in Sauce Labs');
 
 opts.command('serve-test')
-    .callback(chi.serve)
+    .callback(serveTest)
     .help('Serve the JS tests locally')
     .option('port', {
         abbr: 'p',
@@ -18,7 +23,7 @@ opts.command('serve-test')
     });
 
 opts.command('serve')
-    .callback(build.serve)
+    .callback(serve)
     .help('Serve the example')
     .option('port', {
         abbr: 'p',
@@ -27,7 +32,40 @@ opts.command('serve')
     });
 
 opts.command('build')
-    .callback(build.build)
+    .callback(runBuild)
     .help('Build dist files from example');
 
 opts.parse();
+
+function handle(err) {
+    if (err) {
+        console.error(err);
+        process.exit(1);
+    }
+}
+
+function lint() {
+    chi.lint(handle);
+}
+
+function test() {
+    chi.lint(function(err) {
+        if (err) {
+            return handle(err);
+        }
+
+        chi.test(handle);
+    });
+}
+
+function serveTest(options) {
+    chi.serve(options, handle);
+}
+
+function serve(options) {
+    build.serve(options, handle);
+}
+
+function runBuild() {
+    build.build();
+}

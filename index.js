@@ -1,3 +1,5 @@
+/*jshint node: true */
+
 var express = require('express'),
     makeup = require('makeup'),
     npmcss = require('npm-css'),
@@ -11,6 +13,12 @@ var express = require('express'),
 
 var template = fs.readFileSync(path.join(__dirname, 'template.ejs'), 'utf8');
 template = _.template(template);
+
+function defaultCallback(err) {
+    if (err) {
+        throw err;
+    }
+}
 
 function getPackage(dir) {
     var file = path.join(dir, 'package.json');
@@ -30,7 +38,7 @@ function getProject(dir) {
     };
 }
 
-function app() {
+function createApp() {
     var app = express(),
         project = getProject(process.cwd());
 
@@ -59,41 +67,81 @@ function app() {
     return app;
 }
 
-function serve(options) {
+function serve(options, callback) {
+    callback = callback || defaultCallback;
+
     var port = (options && options.port) || 8000,
-        server = http.createServer(app());
+        server = http.createServer(createApp());
     server.listen(port, function(err) {
         if (err) {
-            throw err;
+            return callback(err);
         }
 
         console.log('Listening on port', port);
+        callback();
     });
 }
 
-function build() {
+function build(callback) {
+    callback = callback || defaultCallback;
+    
     var project = getProject(process.cwd()),
         output = path.join(project.dir, 'dist');
 
-    mkdirp.sync(output);
+    mkdirp(output, createdDir);
 
-    var index = fs.readFileSync(project.index, 'utf8');
-    index = template({ name: project.package.name, content: index });
-    fs.writeFileSync(path.join(output, 'index.html'), index);
+    function createdDir(err) {
+        if (err) {
+            return callback(err);
+        }
 
-    var css = npmcss(project.style);
-    fs.writeFileSync(path.join(output, 'style.css'), css);
+        fs.readFile(project.index, 'utf8', readIndex);
+    }
 
-    var script = browserify()
+    function readIndex(err, contents) {
+        if (err) {
+            return callback(err);
+        }
+
+        var index = template({
+            name: project.package.name,
+            content: contents
+        });
+        
+        fs.writeFile(path.join(output, 'index.html'), index, wroteIndex);
+    }
+
+    function wroteIndex(err) {
+        if (err) {
+            return callback(err);
+        }
+
+        var css;
+        try { css = npmcss(project.style); }
+        catch(e) { return callback(e); }
+
+        fs.writeFile(path.join(output, 'style.css'), css, wroteStyle);
+    }
+
+    function wroteStyle(err) {
+        if (err) {
+            return callback(err);
+        }
+
+        var script = browserify()
             .add(project.script)
             .bundle(),
-        scriptOut = fs.createWriteStream(
-            path.join(output, 'script.js'), { encoding: 'utf8' })
-    script.pipe(scriptOut);
+            scriptOut = fs.createWriteStream(
+                path.join(output, 'script.js'), { encoding: 'utf8' });
+        script.pipe(scriptOut);
+
+        script.on('error', function(e) { callback(e); });
+        script.on('done', function() { callback(); });
+    }
 }
 
 module.exports = {
-    app: app,
+    createApp: createApp,
     serve: serve,
     build: build
 };

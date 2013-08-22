@@ -51,17 +51,22 @@ and placed in the `dist` folder.
 
 You can use the JS API in another script.
 
-## `serve(options)`
+## `serve(options, [callback])`
 
 Start an HTTP server, the same as running `hut-build serve`. `options` may
 contain a `port` property (default 8000) which specifies the port for the HTTP
 server. The example directory must be in the current working directory.
 
-## `app()`
+The callback is called after the server is started. If an error occurs, the
+callback will be called with that error.
+
+## `createApp()`
 
 Creates the [connect](https://github.com/senchalabs/connect) app that is used by
 `serve`.
 
-## `build()`
+## `build(callback)`
 
-Build the dist files. Same as running `hut-build build`.
+Build the dist files. Same as running `hut-build build`. The callback is called
+after all files have been written. If an error occurs, the callback will be
+called with that error.

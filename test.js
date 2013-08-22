@@ -1,3 +1,5 @@
+/*jshint node: true */
+
 var test = require('tap').test,
     spawn = require('child_process').spawn,
     fs = require('fs'),

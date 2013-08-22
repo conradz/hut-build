@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "nomnom": "~1.6.1",
-    "chi-build": "0.0.2",
+    "chi-build": "0.0.4",
     "makeup": "0.0.1",
     "express": "~3.3.5",
     "browserify-middleware": "~1.17.0",
