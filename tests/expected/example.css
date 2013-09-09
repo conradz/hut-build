@@ -1,0 +1,11 @@
+:root {
+  var-theme: blue;
+}
+
+.example {
+  color: red;
+}
+
+:root {
+  var-theme: red;
+}

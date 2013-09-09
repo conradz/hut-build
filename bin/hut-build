@@ -2,38 +2,27 @@
 /*jshint node: true */
 
 var opts = require('nomnom'),
-    build = require('../'),
-    chi = require('chi-build');
+    build = require('../');
 
 opts.command('lint')
     .callback(lint)
     .help('Run JSHint');
 
-opts.command('test')
-    .callback(test)
-    .help('Lint and run the test script in Sauce Labs');
-
-opts.command('serve-test')
-    .callback(serveTest)
-    .help('Serve the JS tests locally')
-    .option('port', {
-        abbr: 'p',
-        default: 8000,
-        help: 'The port for the HTTP server'
-    });
-
 opts.command('serve')
     .callback(serve)
-    .help('Serve the example')
-    .option('port', {
-        abbr: 'p',
-        default: 8000,
-        help: 'The port for the HTTP server'
-    });
+    .options({
+        debug: { abbr: 'd', flag: true, help: 'Enable source maps' },
+        port: { abbr: 'p', help: 'Port for the HTTP server' }
+    })
+    .help('Serve files');
 
 opts.command('build')
     .callback(runBuild)
-    .help('Build dist files from example');
+    .help('Build files');
+
+opts.command('test')
+    .callback(test)
+    .help('Lint and run tests in Sauce Labs');
 
 opts.parse();
 
@@ -45,27 +34,34 @@ function handle(err) {
 }
 
 function lint() {
-    chi.lint(handle);
+    build.lint(process.cwd(), handle);
 }
 
-function test() {
-    chi.lint(function(err) {
+function serve(options) {
+    build.serve(process.cwd(), options, serving);
+
+    function serving(err, server) {
         if (err) {
             return handle(err);
         }
 
-        chi.test(handle);
-    });
-}
-
-function serveTest(options) {
-    chi.serve(options, handle);
-}
-
-function serve(options) {
-    build.serve(options, handle);
+        var addr = server.address();
+        console.log('Server listening on', addr.address + ':' + addr.port);
+    }
 }
 
 function runBuild() {
-    build.build();
+    build.build(process.cwd(), handle);
+}
+
+function test() {
+    build.lint(process.cwd(), linted);
+
+    function linted(err) {
+        if (err) {
+            return handle(err);
+        }
+
+        build.test(process.cwd(), handle);
+    }
 }

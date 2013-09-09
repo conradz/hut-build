@@ -1,45 +1,59 @@
 /*jshint node: true */
 
 var test = require('tap').test,
-    spawn = require('child_process').spawn,
+    build = require('./'),
     fs = require('fs'),
     path = require('path'),
     request = require('request');
 
 var fixtures = path.join(__dirname, 'tests', 'fixtures'),
-    dist = path.join(fixtures, 'dist'),
-    expected = path.join(__dirname, 'tests', 'expected');
+    buildDir = path.join(fixtures, 'example', 'build'),
+    expected = getExpected();
 
-function run(command, callback) {
-    var cmd = 'node',
-        args = ['../../bin/hut-build', command],
-        options = { cwd: fixtures },
-        proc = spawn(cmd, args, options);
-    if (callback) {
-        proc.on('exit', callback);
-    }
+function getExpected() {
+    var dir = path.join(__dirname, 'tests', 'expected'),
+        files = {};
+    fs.readdirSync(dir).forEach(function(file) {
+        files[file] = normalize(fs.readFileSync(path.join(dir, file), 'utf8'));
+    });
 
-    return proc;
+    return files;
 }
 
+function normalize(src) {
+    return src.replace(/\r?\n/g, '\n');
+}
+
+test('lint source files', function(t) {
+    build.lint(__dirname, linted);
+
+    function linted(err) {
+        t.notOk(err, 'Source files should pass lint');
+        t.end();
+    }
+});
+
+test('lint files', function(t) {
+    build.lint(fixtures, linted);
+
+    function linted(err) {
+        t.notOk(err);
+        t.end();
+    }
+});
+
 test('build dist files', function(t) {
-    run('build', complete);
+    build.build(fixtures, complete);
 
-    function complete(exitCode) {
-        t.equal(exitCode, 0);
+    function complete(err) {
+        t.notOk(err);
 
-        var files = fs.readdirSync(expected);
-        files.forEach(function(file) {
-            var expectedFile = path.join(expected, file),
-                expectedSrc = fs.readFileSync(expectedFile, 'utf8'),
-                distFile = path.join(dist, file),
-                distSrc = fs.readFileSync(distFile, 'utf8');
+        Object.keys(expected).forEach(function(file) {
+            var built = fs.readFileSync(path.join(buildDir, file), 'utf8');
+            built = normalize(built);
 
-            // Normalize line endings
-            expectedSrc = expectedSrc.replace(/\r?\n/g, '\n');
-            distSrc = distSrc.replace(/\r?\n/g, '\n');
-
-            t.equal(expectedSrc, distSrc, 'File ' + file + ' should be built');
+            t.equal(expected[file], built,
+                'File ' + file + ' should be built');
         });
 
         t.end();
@@ -47,50 +61,51 @@ test('build dist files', function(t) {
 });
 
 test('serve files', function(t) {
-    var proc = run('serve'),
-        tryCount = 0;
+    build.serve(fixtures, { port: 0 }, serving);
 
-    start();
+    var server,
+        url;
 
-    // Wait for the server to start
-    function start() {
-        request('http://localhost:8000/', requestedIndex);
+    function serving(err, s) {
+        t.notOk(err);
+        server = s;
+        url = 'http://localhost:' + s.address().port;
+
+        request(url + '/example/', requestedIndex);
     }
 
     function requestedIndex(err, resp, body) {
-        if (err) {
-            // Try for a max of 4 seconds
-            if (tryCount++ > 20) {
-                t.ok(false, 'Could not connect to server');
-                return t.end();
-            }
-
-            // Retry until the server is started
-            setTimeout(start, 200);
-            return;
-        }
-
         t.notOk(err);
         t.equal(resp.statusCode, 200);
-        t.ok(/^<!DOCTYPE html>/.test(body));
+        t.equal(expected['index.html'], normalize(body));
 
-        request('http://localhost:8000/script.js', requestedScript);
+        request(url + '/example/example.js', requestedScript);
     }
 
-    function requestedScript(err, resp) {
+    function requestedScript(err, resp, body) {
         t.notOk(err);
         t.equal(resp.statusCode, 200);
-        request('http://localhost:8000/style.css', requestedStyle);
+        t.equal(expected['example.js'], normalize(body));
+
+        request(url + '/example/example.css', requestedStyle);
     }
 
-    function requestedStyle(err, resp) {
+    function requestedStyle(err, resp, body) {
         t.notOk(err);
         t.equal(resp.statusCode, 200);
-        done();
+        t.equal(expected['example.css'], normalize(body));
+
+        request(url + '/test/', requestedTest);
+    }
+
+    function requestedTest(err, resp) {
+        t.notOk(err);
+        t.equal(resp.statusCode, 200);
+
+        server.close(done);
     }
 
     function done() {
-        proc.kill();
         t.end();
     }
 });

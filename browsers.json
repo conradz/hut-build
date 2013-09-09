@@ -1,0 +1,66 @@
+[
+  {
+    "name": "Chrome - Linux",
+    "browserName": "chrome",
+    "platform": "linux"
+  },
+
+  {
+    "name": "Chrome - Windows",
+    "browserName": "chrome",
+    "platform": "Windows 8"
+  },
+
+  {
+    "name": "Chrome - OS X",
+    "browserName": "chrome",
+    "platform": "OS X 10.8"
+  },
+
+  {
+    "name": "Firefox - Linux",
+    "browserName": "firefox",
+    "platform": "linux"
+  },
+
+  {
+    "name": "Firefox - Windows",
+    "browserName": "firefox",
+    "platform": "Windows 8"
+  },
+
+  {
+    "name": "IE 10",
+    "browserName": "internet explorer",
+    "platform": "Windows 8",
+    "version": "10"
+  },
+
+  {
+    "name": "IE 9",
+    "browserName": "internet explorer",
+    "platform": "Windows 7",
+    "version": "9"
+  },
+
+  {
+    "name": "Safari",
+    "browserName": "safari",
+    "platform": "OS X 10.8",
+    "version": "6"
+  },
+
+  {
+    "name": "Android 4.0",
+    "browserName": "android",
+    "platform": "Linux",
+    "version": "4.0"
+  },
+
+  {
+    "name": "iOS 6",
+    "browserName": "iphone",
+    "platform": "OS X 10.8",
+    "version": "6"
+  }
+]

@@ -1,8 +1,7 @@
-function hello() {
-    var hello = document.createElement('div');
-    hello.innerHTML = '<h1>Hello World!</h1>';
-    hello.className = 'test';
-    document.body.appendChild(hello);
+var document = window.document;
+
+function foo() {
+    document.querySelector('.hello').innerText = 'Hello World!';
 }
 
-module.exports = hello;
+module.exports = foo;
