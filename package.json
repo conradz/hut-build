@@ -32,7 +32,7 @@
     "serve-script": "0.0.4",
     "through": "~2.3.4",
     "rework-vars": "~1.0.1",
-    "rework-npm": "0.0.1",
+    "rework-npm": "0.0.2",
     "rework": "~0.18.1",
     "async": "~0.2.9",
     "sauce-tap-runner": "0.0.4"
