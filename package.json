@@ -1,6 +1,6 @@
 {
   "name": "hut-build",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "HTML UI Toolkit build tool",
   "main": "index.js",
   "scripts": {
