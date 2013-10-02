@@ -24,7 +24,10 @@ lints the source files and runs the tests on all supported browsers (see the
 
 Tests are run on [Sauce Labs](http://saucelabs.com/) browsers. The `SAUCE_USER`
 and `SAUCE_KEY` environment variables must be set to your Sauce Labs username
-and key, respectively.
+and key, respectively. When running under [Travis CI](https://travis-ci.org/)
+or [Drone.io](https://drone.io/), the build number is automatically sent to
+Sauce Labs to update the
+[status images](https://saucelabs.com/docs/status-images).
 
 See [Serve Locally](#serve-locally) for directions on serving the test files
 locally.

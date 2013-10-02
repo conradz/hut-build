@@ -35,7 +35,8 @@
     "rework-npm": "0.0.2",
     "rework": "~0.18.1",
     "async": "~0.2.9",
-    "sauce-tap-runner": "0.0.6"
+    "sauce-tap-runner": "0.0.6",
+    "lodash": "~2.2.0"
   },
   "devDependencies": {
     "tap": "~0.4.4",
