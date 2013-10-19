@@ -77,7 +77,8 @@ test('serve files', function(t) {
     function requestedIndex(err, resp, body) {
         t.notOk(err);
         t.equal(resp.statusCode, 200);
-        t.equal(expected['index.html'], normalize(body));
+        t.ok(/^<!DOCTYPE html>/.test(body), 'html document');
+        t.ok(/<script src="\/instant/.test(body), 'injected instant script');
 
         request(url + '/example/example.js', requestedScript);
     }
