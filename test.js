@@ -57,11 +57,12 @@ test('build example files', function(t) {
     function built(err) {
         t.error(err, 'built successfully');
 
-        for (var file in expected) {
+        Object.keys(expected).forEach(function(file) {
             var expectedSrc = expected[file],
-                result = normalize(fs.readFileSync(path.join(dir, 'build', file), 'utf8'));
-            t.equal(expectedSrc, result, 'built file ' + file);
-        }
+                filePath = path.join(dir, 'build', file),
+                result = fs.readFileSync(filePath, 'utf8');
+            t.equal(expectedSrc, normalize(result), 'built file ' + file);
+        });
 
         t.end();
     }
@@ -115,7 +116,7 @@ test('serve files', function(t) {
         server.kill();
     }
 
-    function exited(code) {
+    function exited() {
         t.ok(completed, 'did not exit prematurely');
         t.end();
     }
@@ -147,7 +148,7 @@ test('serve tests', function(t) {
         function done(err, resp) {
             t.error(err, 'requested /test');
             t.equal(resp.statusCode, 302);
-            t.equal(resp.headers['location'], '/test/');
+            t.equal(resp.headers.location, '/test/');
             callback();
         }
     }
