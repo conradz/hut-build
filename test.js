@@ -1,17 +1,23 @@
 /*jshint node: true */
 
+// These tests take a *long* time to run since they run multiple test runs
+// against many browsers using Sauce Labs
+
 var test = require('tap').test,
-    build = require('./'),
+    bin = require.resolve('./bin/hut-build'),
     fs = require('fs'),
     path = require('path'),
-    request = require('request');
+    request = require('request'),
+    async = require('async'),
+    exec = require('child_process').exec,
+    spawn = require('child_process').spawn;
 
-var fixtures = path.join(__dirname, 'tests', 'fixtures'),
-    buildDir = path.join(fixtures, 'example', 'build'),
+var testsDir = path.join(__dirname, 'tests'),
+    testTime = Infinity,
     expected = getExpected();
 
 function getExpected() {
-    var dir = path.join(__dirname, 'tests', 'expected'),
+    var dir = path.join(testsDir, 'expected'),
         files = {};
     fs.readdirSync(dir).forEach(function(file) {
         files[file] = normalize(fs.readFileSync(path.join(dir, file), 'utf8'));
@@ -24,89 +30,187 @@ function normalize(src) {
     return src.replace(/\r?\n/g, '\n');
 }
 
-test('lint source files', function(t) {
-    build.lint(__dirname, linted);
+test('lint example files', function(t) {
+    var dir = path.join(testsDir, 'example');
+    exec(bin + ' lint', { cwd: dir }, done);
 
-    function linted(err) {
+    function done(err) {
         t.notOk(err, 'Source files should pass lint');
         t.end();
     }
 });
 
-test('lint files', function(t) {
-    build.lint(fixtures, linted);
+test('return error when linting failed', function(t) {
+    var dir = path.join(testsDir, 'lint');
+    exec(bin + ' lint', { cwd: dir }, done);
 
-    function linted(err) {
-        t.notOk(err);
+    function done(err) {
+        t.ok(err, 'Returned error code when files did not pass lint');
         t.end();
     }
 });
 
-test('build dist files', function(t) {
-    build.build(fixtures, complete);
+test('build example files', function(t) {
+    var dir = path.join(testsDir, 'example');
+    exec(bin + ' build', { cwd: dir }, built);
 
-    function complete(err) {
-        t.notOk(err);
+    function built(err) {
+        t.error(err, 'built successfully');
 
-        Object.keys(expected).forEach(function(file) {
-            var built = fs.readFileSync(path.join(buildDir, file), 'utf8');
-            built = normalize(built);
+        for (var file in expected) {
+            var expectedSrc = expected[file],
+                result = normalize(fs.readFileSync(path.join(dir, 'build', file), 'utf8'));
+            t.equal(expectedSrc, result, 'built file ' + file);
+        }
 
-            t.equal(expected[file], built,
-                'File ' + file + ' should be built');
-        });
+        t.end();
+    }
+});
 
+test('run lint when building', function(t) {
+    var dir = path.join(testsDir, 'lint');
+    exec(bin + ' build', { cwd: dir }, done);
+
+    function done(err) {
+        t.ok(err, 'build returned error when lint failed');
         t.end();
     }
 });
 
 test('serve files', function(t) {
-    build.serve(fixtures, { port: 0 }, serving);
+    var dir = path.join(testsDir, 'example'),
+        server = spawn(bin, ['serve'], { cwd: dir }),
+        completed = false;
 
-    var server,
-        url;
+    server.on('exit', exited);
+    setTimeout(started, 1000);
 
-    function serving(err, s) {
-        t.notOk(err);
-        server = s;
-        url = 'http://localhost:' + s.address().port;
-
-        request(url + '/example/', requestedIndex);
+    function started() {
+        async.eachSeries(Object.keys(expected), verify, done);
     }
 
-    function requestedIndex(err, resp, body) {
-        t.notOk(err);
-        t.equal(resp.statusCode, 200);
-        t.ok(/^<!DOCTYPE html>/.test(body), 'html document');
-        t.ok(/<script src="\/instant/.test(body), 'injected instant script');
+    function verify(file, callback) {
+        var url = 'http://localhost:8000/' + file,
+            expectedSrc = expected[file];
 
-        request(url + '/example/example.js', requestedScript);
+        request(url, function(err, resp, body) {
+            if (err) {
+                return callback(err);
+            }
+
+            t.equal(resp.statusCode, 200, 'status code ok');
+
+            // The HTML files have injected code in them, so skip verifying the
+            // contents
+            if (file !== 'index.html') {
+                t.equal(normalize(body), expectedSrc, 'serve file ' + file);
+            }
+            callback();
+        });
     }
 
-    function requestedScript(err, resp, body) {
-        t.notOk(err);
-        t.equal(resp.statusCode, 200);
-        t.equal(expected['example.js'], normalize(body));
-
-        request(url + '/example/example.css', requestedStyle);
+    function done(err) {
+        completed = true;
+        t.error(err, 'requested all files');
+        server.kill();
     }
 
-    function requestedStyle(err, resp, body) {
-        t.notOk(err);
-        t.equal(resp.statusCode, 200);
-        t.equal(expected['example.css'], normalize(body));
+    function exited(code) {
+        t.ok(completed, 'did not exit prematurely');
+        t.end();
+    }
+});
 
-        request(url + '/test/', requestedTest);
+test('serve tests', function(t) {
+    var dir = path.join(testsDir, 'example'),
+        server = spawn(bin, ['serve'], { cwd: dir }),
+        complete = false;
+
+    setTimeout(started, 1000);
+    server.on('exit', exited);
+
+    function started() {
+        async.series([
+            testRedirect,
+            testPage,
+            testScript
+        ], done);
     }
 
-    function requestedTest(err, resp) {
-        t.notOk(err);
-        t.equal(resp.statusCode, 200);
+    function testRedirect(callback) {
+        request({
+            url: 'http://localhost:8000/test',
+            method: 'GET',
+            followRedirect: false
+        }, done);
 
-        server.close(done);
+        function done(err, resp) {
+            t.error(err, 'requested /test');
+            t.equal(resp.statusCode, 302);
+            t.equal(resp.headers['location'], '/test/');
+            callback();
+        }
     }
 
-    function done() {
+    function testPage(callback) {
+        request('http://localhost:8000/test/', done);
+
+        function done(err, resp) {
+            t.error(err, 'requested /test/');
+            t.equal(resp.statusCode, 200);
+            callback();
+        }
+    }
+
+    function testScript(callback) {
+        request('http://localhost:8000/test/script.js', done);
+
+        function done(err, resp) {
+            t.error(err, 'requested /test/script.js');
+            t.equal(resp.statusCode, 200);
+            callback();
+        }
+    }
+
+    function done(err) {
+        t.error(err, 'requested files');
+        complete = true;
+        server.kill();
+    }
+
+    function exited() {
+        t.ok(complete, 'did not exit prematurely');
+        t.end();
+    }
+});
+
+// This takes a long time since it connects to Sauce Labs
+test('test example files', { timeout: testTime }, function(t) {
+    var dir = path.join(testsDir, 'example');
+    exec(bin + ' test', { cwd: dir }, done);
+
+    function done(err) {
+        t.error(err, 'successfully tested example');
+        t.end();
+    }
+});
+
+test('run lint when testing', function(t) {
+    var dir = path.join(testsDir, 'lint');
+    exec(bin + ' test', { cwd: dir }, done);
+
+    function done(err) {
+        t.ok(err, 'test returned error when lint fails');
+        t.end();
+    }
+});
+
+test('return error when tests fail', { timeout: testTime }, function(t) {
+    var dir = path.join(testsDir, 'fail');
+    exec(bin + ' test', { cwd: dir }, done);
+
+    function done(err) {
+        t.ok(err, 'test returned error when tests failed');
         t.end();
     }
 });

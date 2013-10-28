@@ -4,7 +4,7 @@
   "description": "HTML UI Toolkit build tool",
   "main": "index.js",
   "scripts": {
-    "test": "tap test.js"
+    "test": "tap --timeout 1200 test.js"
   },
   "bin": {
     "hut-build": "bin/hut-build"
@@ -24,20 +24,19 @@
     "url": "https://github.com/conradz/hut-build/issues"
   },
   "dependencies": {
-    "nomnom": "~1.6.1",
-    "express": "~3.4.0",
     "mkdirp": "~0.3.5",
     "browserify": "~2.33.1",
     "build-jshint": "0.0.3",
-    "serve-script": "0.0.7",
-    "through": "~2.3.4",
     "rework-vars": "~1.0.1",
     "rework-npm": "0.0.2",
     "rework": "~0.18.1",
     "async": "~0.2.9",
     "sauce-tap-runner": "0.0.7",
-    "lodash": "~2.2.0",
-    "instant": "0.0.2"
+    "instant": "0.0.2",
+    "optimist": "~0.6.0",
+    "gaze": "~0.4.3",
+    "connect": "~2.10.1",
+    "nomnom": "~1.6.1"
   },
   "devDependencies": {
     "tap": "~0.4.4",

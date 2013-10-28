@@ -1,11 +1,4 @@
 {
-  "files": [
-    "*.js",
-    "lib/*.js",
-    "example/*.js",
-    "bin/*"
-  ],
-  
   "config": {
     "curly": true,
     "eqeqeq": true,

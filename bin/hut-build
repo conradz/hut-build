@@ -1,67 +1,57 @@
 #!/usr/bin/env node
 /*jshint node: true */
 
-var opts = require('nomnom'),
-    build = require('../');
+var build = require('../'),
+    parser = require('nomnom');
 
-opts.command('lint')
-    .callback(lint)
-    .help('Run JSHint');
+parser
+    .script('hut-build')
+    .help('Automate build tasks for HUT projects');
 
-opts.command('serve')
-    .callback(serve)
-    .options({
-        debug: { abbr: 'd', flag: true, help: 'Enable source maps' },
-        port: { abbr: 'p', help: 'Port for the HTTP server' }
+parser.command('test')
+    .help('Run tests in Sauce Labs')
+    .callback(function() {
+        build.test(done);
+    });
+
+parser.command('lint')
+    .help('Lint JS files')
+    .callback(function() {
+        build.lint(done);
+    });
+
+parser.command('build')
+    .help('Build files')
+    .option('debug', {
+        help: 'Include source maps in generated JS',
+        abbr: 'd'
     })
-    .help('Serve files');
+    .callback(function() {
+        build.build(done);
+    });
 
-opts.command('build')
-    .callback(runBuild)
-    .help('Build files');
+parser.command('serve')
+    .help('Serve files and build when files change')
+    .option('debug', {
+        help: 'Include source maps in generated JS',
+        abbr: 'd'
+    })
+    .option('port', {
+        help: 'Port for the HTTP server',
+        metavar: 'PORT',
+        abbr: 'p'
+    })
+    .callback(function() {
+        build.serve(done);
+    });
 
-opts.command('test')
-    .callback(test)
-    .help('Lint and run tests in Sauce Labs');
+parser.parse();
 
-opts.parse();
-
-function handle(err) {
+function done(err) {
     if (err) {
         console.error(err);
         process.exit(1);
-    }
-}
-
-function lint() {
-    build.lint(process.cwd(), handle);
-}
-
-function serve(options) {
-    build.serve(process.cwd(), options, serving);
-
-    function serving(err, server) {
-        if (err) {
-            return handle(err);
-        }
-
-        var addr = server.address();
-        console.log('Server listening on', addr.address + ':' + addr.port);
-    }
-}
-
-function runBuild() {
-    build.build(process.cwd(), handle);
-}
-
-function test() {
-    build.lint(process.cwd(), linted);
-
-    function linted(err) {
-        if (err) {
-            return handle(err);
-        }
-
-        build.test(process.cwd(), handle);
+    } else {
+        process.exit(0);
     }
 }
