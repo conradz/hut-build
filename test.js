@@ -78,13 +78,13 @@ test('run lint when building', function(t) {
     }
 });
 
-test('serve files', function(t) {
+test('serve files', { timeout: 7000 }, function(t) {
     var dir = path.join(testsDir, 'example'),
         server = spawn(bin, ['serve'], { cwd: dir }),
         completed = false;
 
     server.on('exit', exited);
-    setTimeout(started, 1000);
+    setTimeout(started, 2000);
 
     function started() {
         async.eachSeries(Object.keys(expected), verify, done);
