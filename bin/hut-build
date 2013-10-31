@@ -10,39 +10,41 @@ parser
 
 parser.command('test')
     .help('Run tests in Sauce Labs')
-    .callback(function() {
-        build.test(done);
+    .callback(function(options) {
+        build.test(options, done);
     });
 
 parser.command('lint')
     .help('Lint JS files')
-    .callback(function() {
-        build.lint(done);
+    .callback(function(options) {
+        build.lint(options, done);
     });
 
 parser.command('build')
     .help('Build files')
     .option('debug', {
         help: 'Include source maps in generated JS',
-        abbr: 'd'
+        abbr: 'd',
+        flag: true
     })
-    .callback(function() {
-        build.build(done);
+    .callback(function(options) {
+        build.build(options, done);
     });
 
 parser.command('serve')
     .help('Serve files and build when files change')
     .option('debug', {
         help: 'Include source maps in generated JS',
-        abbr: 'd'
+        abbr: 'd',
+        flag: true
     })
     .option('port', {
         help: 'Port for the HTTP server',
         metavar: 'PORT',
         abbr: 'p'
     })
-    .callback(function() {
-        build.serve(done);
+    .callback(function(options) {
+        build.serve(options, done);
     });
 
 parser.parse();
