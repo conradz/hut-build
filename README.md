@@ -42,7 +42,7 @@ include an `example.js` file that will be bundled with Browserify and an
 `example.css` files from `index.html` file when using them.
 
 When running `hut-build build`, the processed files (`index.html`, `example.js`,
-and `example.css`) will be written to the `example/build` folder.
+and `example.css`) will be written to the `build` folder.
 
 ## Serve Locally
 
@@ -65,6 +65,7 @@ my-project
    - example.js    # Example JS file
    - example.css   # Example CSS file
    - build         # A directory containing the built files
+ - build
      - index.html  # Copied from example/index.html
      - example.css # Processed by rework
      - example.js  # Processed by browserify
