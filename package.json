@@ -35,7 +35,7 @@
     "instant": "0.0.2",
     "optimist": "~0.6.0",
     "gaze": "~0.4.3",
-    "connect": "~2.10.1",
+    "connect": "~2.11.0",
     "nomnom": "~1.6.1",
     "through": "~2.3.4",
     "serve-script": "0.0.7"
