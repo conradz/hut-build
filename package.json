@@ -26,7 +26,7 @@
   "dependencies": {
     "mkdirp": "~0.3.5",
     "browserify": "~2.35.0",
-    "build-jshint": "0.0.3",
+    "build-jshint": "~0.1.0",
     "rework-vars": "~1.0.1",
     "rework-npm": "0.0.2",
     "rework": "~0.18.1",

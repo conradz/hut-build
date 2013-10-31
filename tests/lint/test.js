@@ -1,3 +1,5 @@
+'use strict';
+
 var test = require('tape');
 
 test('2 + 2 = 4', function(t) {

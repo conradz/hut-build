@@ -1,3 +1,5 @@
+'use strict';
+
 var document = window.document;
 
 function foo() {
