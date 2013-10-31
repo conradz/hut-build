@@ -128,7 +128,7 @@ test('serve tests', function(t) {
         server = spawn(bin, ['serve'], { cwd: dir }),
         complete = false;
 
-    setTimeout(started, 1000);
+    setTimeout(started, 2000);
     server.on('exit', exited);
 
     function started() {
