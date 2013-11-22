@@ -32,13 +32,11 @@
     "rework": "~0.18.1",
     "async": "~0.2.9",
     "sauce-tap-runner": "0.0.7",
-    "instant": "0.0.2",
-    "optimist": "~0.6.0",
     "gaze": "~0.4.3",
-    "connect": "~2.11.0",
     "nomnom": "~1.6.1",
     "through": "~2.3.4",
-    "serve-script": "0.0.7"
+    "serve-script": "0.0.7",
+    "st": "~0.2.3"
   },
   "devDependencies": {
     "tap": "~0.4.4",
