@@ -58,9 +58,10 @@
   },
 
   {
-    "name": "iOS 6",
+    "name": "iOS 6.1",
     "browserName": "iphone",
     "platform": "OS X 10.8",
-    "version": "6"
+    "version": "6.1",
+    "device-orientation": "portrait"
   }
 ]
