@@ -30,17 +30,17 @@
   },
 
   {
+    "name": "IE 11",
+    "browserName": "internet explorer",
+    "platform": "Windows 8.1",
+    "version": "11"
+  },
+
+  {
     "name": "IE 10",
     "browserName": "internet explorer",
     "platform": "Windows 8",
     "version": "10"
-  },
-
-  {
-    "name": "IE 9",
-    "browserName": "internet explorer",
-    "platform": "Windows 7",
-    "version": "9"
   },
 
   {
