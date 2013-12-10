@@ -1,6 +1,6 @@
 {
   "name": "hut-build",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "HTML UI Toolkit build tool",
   "main": "index.js",
   "scripts": {
@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "tap": "~0.4.4",
-    "request": "~2.27.0",
+    "request": "~2.29.0",
     "tape": "~2.3.0"
   }
 }
