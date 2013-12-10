@@ -1,7 +1,3 @@
-:root {
-    var-theme: blue;
-}
-
 .example {
-    color: var(theme);
+    color: var(theme, blue);
 }

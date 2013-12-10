@@ -1,5 +1,5 @@
-@import "../";
-
 :root {
     var-theme: red;
 }
+
+@import "../";

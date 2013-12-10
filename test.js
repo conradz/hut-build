@@ -62,7 +62,7 @@ test('build example files', function(t) {
             var expectedSrc = expected[file],
                 filePath = path.join(dir, 'build', file),
                 result = fs.readFileSync(filePath, 'utf8');
-            t.equal(expectedSrc, normalize(result), 'built file ' + file);
+            t.equal(normalize(result), expectedSrc, 'built file ' + file);
         });
 
         t.end();
