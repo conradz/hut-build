@@ -35,7 +35,7 @@
     "gaze": "~0.4.3",
     "nomnom": "~1.6.1",
     "through": "~2.3.4",
-    "serve-script": "0.0.7",
+    "serve-script": "~0.1.1",
     "st": "~0.2.3",
     "redirecter": "~0.2.3",
     "routes-router": "~1.5.3"
